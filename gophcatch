@@ -43,12 +43,14 @@ for w in "${towatch[@]}"; do
 	# Check each item if it's new.
 	firsthere=1
 	while read -r item; do
+		# Explode tokens.
 		typedesc=$(echo "$item" | cut -f1)
 		path=$(echo "$item" | cut -f2)
 		server=$(echo "$item" | cut -f3)
 		port=$(echo "$item" | cut -f4)
 		itype=${typedesc:0:1}
 		desc=${typedesc:1}
+
 		if [[ "${path:0:4}" == "URL:" ]]; then
 			# This is a gopher+ "URL link". Extract the real target.
 			url=${path:4}
