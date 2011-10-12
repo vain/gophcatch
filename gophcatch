@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# ------------------------------------------------------------------
+# "THE PIZZA-WARE LICENSE" (Revision 42):
+# Peter Hofmann <pcode@uninformativ.de> wrote this file. As long as you
+# retain this notice you can do whatever you want with this stuff. If
+# we meet some day, and you think this stuff is worth it, you can buy
+# me a pizza in return.
+# ------------------------------------------------------------------
+
+
+# Load and verify configuration.
+rcfile=${GOCRC:-~/.gocrc}
+. "$rcfile" || { echo "Failed to load \`$rcfile'." >&2; exit 1; }
+
+(( ${#towatch[@]} == 0 )) &&
+	{ echo "Array of selectors, \`\$towatch', is empty." >&2; exit 1; }
+
+# Try to load history.
+hifile=${GOCHIST:-~/.goc_history}
+declare -A seen
+if [[ -f "$hifile" ]]; then
+	while read -r loc; do
+		read -r stamp
+		seen[$loc]=$stamp
+	done < "$hifile"
+fi
+
+# Visit all selectors.
+now=$(date +%s)
+for w in "${towatch[@]}"; do
+	# Load remote file.
+	content=$(curl -s "$w")
+	curlstatus=$?
+	if (( curlstatus != 0 )); then
+		echo "Error: \`$w' could not be retrieved. ($curlstatus)" >&2
+		continue
+	fi
+
+	# Remove CRs and lastline token.
+	content=$(echo "$content" | tr -d '\r' | sed '$ { /^\.$/d }')
+
+	# Check each item if it's new.
+	firsthere=1
+	while IFS=$'\t' read -r typedesc path server port junk; do
+		itype=${typedesc:0:1}
+		desc=${typedesc:1}
+		if [[ "${path:0:4}" == "URL:" ]]; then
+			# This is a gopher+ "URL link". Extract the real target.
+			url=${path:4}
+		else
+			url="gopher://$server:$port/$itype$path"
+		fi
+
+		# Skip informational items and errors.
+		[[ "$itype" == "i" ]] && continue
+		[[ "$itype" == "3" ]] &&
+			{ echo "Error: \`$url': \`$desc'" >&2; continue; }
+
+		# Add to $seen if new. Don't simply add $url but prefix it with
+		# $w, so we know where this new $url came from.
+		if [[ -z "${seen["$w:$url"]}" ]]; then
+			seen["$w:$url"]=$now
+
+			if (( firsthere )); then
+				firsthere=0
+				msg="New item(s) on $w"
+				echo "$msg"
+				echo "${msg//?/-}"
+				echo
+			fi
+			echo "  $url"
+
+			# Append an excerpt of this new item, if requested. Only do
+			# this for plain text files (0), menus (1) or HTML files
+			# (h). At least one empty line between items (if excerpts
+			# are requested).
+			if [[ -n "$GOCEXCERPT" ]]; then
+				if [[ "$itype" =~ ^[01h]$ ]]; then
+					echo "  ${url//?/-}"
+					lynx -dump "$url" | tr -d '\r' | head -10 | sed 's/^/  /'
+					echo "  ${url//?/-}"
+					echo
+				fi
+				echo
+			fi
+		fi
+	done < <(echo "$content")
+
+	# Only print empty lines if we already have printed new items.
+	! (( firsthere )) && { echo; echo; }
+done
+
+# Save new history.
+for loc in "${!seen[@]}"; do
+	echo "$loc"
+	echo "${seen[$loc]}"
+done > "$hifile"

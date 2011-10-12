@@ -1,0 +1,5 @@
+towatch=(
+	'gopher://uninformativ.de/1/phlog/phlog.dcgi'
+	)
+
+# vim: set ft=sh :
