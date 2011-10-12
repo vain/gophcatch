@@ -10,6 +10,9 @@
 
 
 # Load and verify configuration.
+curlopts=("--connect-timeout" "60" "--max-time" "60")
+lynxopts=("-connect_timeout" "60" "-read_timeout" "60")
+
 rcfile=${GOCRC:-~/.gocrc}
 . "$rcfile" || { echo "Failed to load \`$rcfile'." >&2; exit 1; }
 
@@ -30,7 +33,7 @@ fi
 now=$(date +%s)
 for w in "${towatch[@]}"; do
 	# Load remote file.
-	content=$(curl -s "$w")
+	content=$(curl "${curlopts[@]}" -s "$w")
 	curlstatus=$?
 	if (( curlstatus != 0 )); then
 		echo "Error: \`$w' could not be retrieved. ($curlstatus)" >&2
@@ -84,7 +87,12 @@ for w in "${towatch[@]}"; do
 			if [[ -n "$GOCEXCERPT" ]]; then
 				if [[ "$itype" =~ ^[01h]$ ]]; then
 					echo "  ${url//?/-}"
-					lynx -dump "$url" | tr -d '\r' | head -10 | sed 's/^/  /'
+					content=$(lynx "${lynxopts[@]}" -dump "$url" 2>&1)
+					if (( $? == 0 )); then
+						echo "$content" | tr -d '\r' | head -10 | sed 's/^/  /'
+					else
+						echo "$content" | sed 's/^/  /'
+					fi
 					echo "  ${url//?/-}"
 					echo
 				fi
