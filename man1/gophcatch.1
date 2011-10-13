@@ -1,0 +1,92 @@
+.TH GOPHCATCH 1  "October 2011" "gophcatch" "Catch gopher updates"
+.SH NAME
+gophcatch \- Watch gopher holes and catch updates.
+.SH SYNOPSIS
+\fBgophcatch\fP
+.SH DESCRIPTION
+In today's web (2011), programs called \(lqfeed readers\(rq are
+ubiquitous. They regularly retrieve a special resource (the
+\(lqfeed\(rq) which represents a web page's content in a simplified and
+standardized format. A feed reader also checks if that feed contains new
+items and notifies you about that.
+.P
+\fBgophcatch\fP is a feed reader's equivalent for gopher. It retrieves a
+gopher menu and checks if it contains new items. This allows you to keep
+up with another user's phlog, for example. \fBgophcatch\fP is supposed
+to be called by a \fBcron\fP(8) daemon. It will simply print new items
+on \fBstdout\fP, so \fBcron\fP can mail them to you. If no new items are
+found and no errors occured, \fBgophcatch\fP prints nothing.
+.P
+As a result of the simplicity of the gopher protocol and gopher menus,
+\fBgophcatch\fP is an almost trivial shell script written in GNU
+\fBbash\fP(1). Internally, it also uses \fBcurl\fP(1) and, optionally,
+\fBlynx\fP(1).
+.SH CONFIGURATION
+\fBgophcatch\fP will read \fI~/.gocrc\fP on startup. This is done using
+the \(lqsource\(rq operator, so your rc file is expected to be a
+bash shell script. Most importantly, this file is supposed to define a
+bash array called $\fBtowatch\fP. Each item of this array must be a
+gopher URL \(em these are the gopher menus that you want to watch.
+.P
+Your rc file may also set additional environment variables. See below
+for a list.
+.P
+If the variable $\fBGOCEXCERPT\fP is set, then \fBlynx\fP is used to
+retrieve and dump each new item. The first 10 lines of that output are
+printed. You can use a bash array called $\fBlynxopts\fP to append
+special parameters. The same goes for a bash array called
+$\fBcurlopts\fP. By default, $\fBlynxopts\fP and $\fBcurlopts\fP contain
+timeout parameters for the two programs (60 seconds).
+.P
+An example for a \fI~/.gocrc\fP follows:
+.P
+\f(CW
+.nf
+	towatch=(
+		'gopher://uninformativ.de/1/phlog/phlog.dcgi'
+		'gopher://gopher.floodgap.com/1/new'
+		)
+	lynxopts+=('-assume_charset' 'utf-8')
+	curlopts+=('-foo' '-bar')
+	GOCEXCERPT=1
+.fi
+\fP
+.SH ENVIRONMENT
+.TP
+\fBGOCRC\fP
+Override the default path (\fI~/.gocrc\fP) of your rc file.
+.TP
+\fBGOCHIST\fP
+Override the default path (\fI~/.goc_history\fP) of the history file.
+This file will contain every selector we've seen.
+.TP
+\fBGOCEXCERPT\fP
+Usually, new items are simply reported. If this variable is set, the new
+item is also retrieved and the first 10 lines will be printed.
+.SH FILES
+.TP
+\fI~/.gocrc\fP
+Default path of your rc file.
+.TP
+\fI~/.goc_history\fP
+Default path of the history file.
+.SH LICENSE
+\fBgophcatch\fP is released as \(lqPIZZA-WARE\(rq. The header of the
+script says it all:
+.IP
+\(lqTHE PIZZA-WARE LICENSE\(rq (Revision 42):
+.br
+Peter Hofmann <pcode@uninformativ.de> wrote this file. As long as you
+retain this notice you can do whatever you want with this stuff. If we
+meet some day, and you think this stuff is worth it, you can buy me a
+pizza in return.
+.P
+So, have fun. :-)
+.SH HISTORY
+2011 \(en Originally written by Peter Hofmann (pcode@uninformativ.de).
+.SH "SEE ALSO"
+.BR bash (1),
+.BR curl (1),
+.BR lynx (1),
+.BR crontab (1),
+.BR cron (8).
