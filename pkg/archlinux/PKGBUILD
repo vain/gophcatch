@@ -1,6 +1,6 @@
 # Maintainer: Vain
 pkgname=gophcatch-git
-pkgver=20111013
+pkgver=20111104
 pkgrel=1
 pkgdesc="Watch gopher holes and catch updates"
 arch=('any')
@@ -23,8 +23,7 @@ source=()
 noextract=()
 md5sums=() #generate with 'makepkg -g'
 
-# TODO: Replace with URL at GitHub
-_gitroot=~/work/shell/gophcatch
+_gitroot="git://github.com/vain/gophcatch.git"
 _gitname="master"
 
 build() {
