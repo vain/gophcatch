@@ -39,6 +39,7 @@ package() {
   cd "$srcdir/$_gitname-build"
   install -Dm755 gophcatch "$pkgdir"/usr/bin/gophcatch
   install -Dm644 man1/gophcatch.1 "$pkgdir"/usr/share/man/man1/gophcatch.1
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 gocrc-example \
     "$pkgdir"/usr/share/doc/gophcatch/gocrc-example
 }
