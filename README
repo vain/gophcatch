@@ -3,7 +3,7 @@ GOPHCATCH(1)             Catch gopher updates             GOPHCATCH(1)
 
 
 NAME
-       gophcatch - Watch gopher holes and catch updates.
+       gophcatch - watch gopher holes and catch updates
 
 SYNOPSIS
        gophcatch
