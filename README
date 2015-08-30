@@ -1,100 +1,38 @@
-GOPHCATCH(1)             Catch gopher updates             GOPHCATCH(1)
+                               =========
+                               gophcatch
+                               =========
 
 
+A "feed reader" for the gopher space.
 
-NAME
-       gophcatch - watch gopher holes and catch updates
+In today's web (2011), programs called "feed readers" are ubiquitous.
+They regularly retrieve a special resource (the "feed") which represents
+a web page's content in a simplified and standardized format. A feed
+reader also checks if that feed contains new items and notifies you
+about that.
 
-SYNOPSIS
-       gophcatch
-
-DESCRIPTION
-       In today's web (2011), programs called “feed readers” are ubiq‐
-       uitous. They regularly retrieve a special resource (the “feed”)
-       which represents a web page's content in a simplified and stan‐
-       dardized format. A feed reader also checks if  that  feed  con‐
-       tains new items and notifies you about that.
-
-       gophcatch   is  a  feed  reader's  equivalent  for  gopher.  It
-       retrieves a gopher menu and checks if it  contains  new  items.
-       This allows you to keep up with another user's phlog, for exam‐
-       ple. gophcatch is supposed to be called by a cron(8) daemon. It
-       will simply print new items on stdout, so cron can mail them to
-       you. If no new items are found and no errors occured, gophcatch
-       prints nothing.
-
-       As a result of the simplicity of the gopher protocol and gopher
-       menus, gophcatch is an almost trivial shell script  written  in
-       GNU  bash(1). Internally, it also uses curl(1) and, optionally,
-       lynx(1).
-
-CONFIGURATION
-       gophcatch will read ~/.gocrc on startup. This is done using the
-       “source”  operator,  so  your  rc file is expected to be a bash
-       shell script. Most importantly, this file is supposed to define
-       a bash array called $towatch. Each item of this array must be a
-       gopher URL — these are the gopher menus that you want to watch.
-
-       Your rc file may also set additional environment variables. See
-       below for a list.
-
-       If  the  variable  $GOCEXCERPT  is  set,  then  lynx is used to
-       retrieve and dump each new item. The first  10  lines  of  that
-       output  are  printed. You can use a bash array called $lynxopts
-       to append special parameters. The same goes for  a  bash  array
-       called  $curlopts.  By default, $lynxopts and $curlopts contain
-       timeout parameters for the two programs (60 seconds).
-
-       An example for a ~/.gocrc follows:
+gophcatch is a feed reader's equivalent for gopher. It retrieves a
+gopher menu and checks if it contains new items. This allows you to keep
+up with another user's phlog, for example.
 
 
-            towatch=(
-                 'gopher://uninformativ.de/1/phlog/phlog.dcgi'
-                 'gopher://gopher.floodgap.com/1/new'
-                 )
-            lynxopts+=('-assume_charset' 'utf-8')
-            curlopts+=('-foo' '-bar')
-            GOCEXCERPT=1
+Installation
+------------
+
+gophcatch is a Bash script and relies on the following external tools:
+
+    - curl
+    - lynx
+
+You will also need a cron-like program.
+
+If you're on Arch Linux, you can use the following AUR package:
+
+    - https://aur.archlinux.org/packages/gophcatch-git/
 
 
-ENVIRONMENT
-       GOCRC  Override the default path (~/.gocrc) of your rc file.
+Running
+-------
 
-       GOCHIST
-              Override the default path (~/.goc_history) of  the  his‐
-              tory  file.  This file will contain every selector we've
-              seen.
-
-       GOCEXCERPT
-              Usually, new items are simply reported. If this variable
-              is  set, the new item is also retrieved and the first 10
-              lines will be printed.
-
-FILES
-       ~/.gocrc
-              Default path of your rc file.
-
-       ~/.goc_history
-              Default path of the history file.
-
-BUGS
-       If you find a bug, I'd happy to hear about it. Either  use  the
-       bug  tracker at https://github.com/vain/gophcatch or send an e-
-       mail to pcode@uninformativ.de. If that doesn't work,  then  you
-       should find up to date contact information at http://uninforma‐
-       tiv.de or gopher://uninformativ.de.
-
-LICENSE
-       gophcatch is released as  “PIZZA-WARE”.  See  the  accompanying
-       LICENSE file.
-
-HISTORY
-       2011  –  Originally  written by Peter Hofmann (pcode@uninforma‐
-       tiv.de).
-
-SEE ALSO
-       bash(1), curl(1), lynx(1), crontab(1), cron(8).
-
-
-
-gophcatch                    October 2011                 GOPHCATCH(1)
+gophcatch is not meant to be run interactively. Instead, configure your
+~/.gocrc and add a cronjob. Refer to the manpage for further details.
